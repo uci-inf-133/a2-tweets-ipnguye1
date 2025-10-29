@@ -18,10 +18,9 @@ function parseTweets(runkeeper_tweets) {
 	var howManyLiveEvents = 0;
 	var howManyAchievements = 0;
 	var howManyMiscEvents = 0;
-
 	var writtenCompleteEvents = 0;
 
-	// process array
+	// go through array array
 	for (var i = 0; i < tweet_array.length; i++) {
 		// if there is a tweet older than the current oldest tweet, set that as the oldest
 		if (tweet_array[i].time < oldestTweet) {

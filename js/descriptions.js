@@ -11,73 +11,114 @@ function parseTweets(runkeeper_tweets) {
 		return tempTweet.written;
 	};
 
+	// set searchText to what was in the search bar
+	document.getElementById('searchText').innerText = textFilter.value;
+
+	var matchingTweets = [];
+	// if (searchTerms) prevents an empty search bar from returning every single tweet
+	if (textFilter.value) { 
+		for (var i = 0; i < writtenTweets.length; i++) { // grabs tweets with matching written text
+			var tempTweet = new Tweet(writtenTweets[i].text, writtenTweets[i].created_at);
+			var lowercaseText = tempTweet.writtenText.toLowerCase();
+
+			if (lowercaseText.includes(textFilter.value.toLowerCase())) {
+				matchingTweets.push(tempTweet);
+			}
+		}
+	}
+
+	document.getElementById('searchCount').innerText = matchingTweets.length;
+
 	return writtenTweets;
 }
 
+function getMatchingTweets(tweetList) {
+	var searchTerms = textFilter.value;
+	var matchingTweets = [];
+	// if (searchTerms) prevents an empty search bar from returning every single tweet
+	if (searchTerms) { 
+		for (var i = 0; i < tweetList.length; i++) { // grabs tweets with matching written text
+			var tempTweet = new Tweet(tweetList[i].text, tweetList[i].created_at);
+			var lowercaseText = tempTweet.writtenText.toLowerCase();
+
+			if (lowercaseText.includes(searchTerms.toLowerCase())) {
+				matchingTweets.push(tempTweet);
+			}
+		}
+	}
+	return matchingTweets;
+}
+
 function addRow(rows) {
+	// get tweetTable and empty it
 	var tableBody = document.getElementById('tweetTable');
 	while (tableBody.hasChildNodes()) {
 		tableBody.removeChild(tableBody.firstChild);
 	}
-	var newHTML = "";
+
+	// create a list of table rows to add later
 	var newHTMLNodeList = [];
 	for (var i = 0; i < rows.length; i++) {
-		newHTMLNodeList[i] = document.createElement("tr");
+		newHTMLNodeList.push(document.createElement("tr"));
 		newHTMLNodeList[i].innerHTML = rows[i];
 	}
-	// console.log(newHTML);
-	var newHTMLNode = document.createElement("tr");
-	newHTMLNode.innerHTML = newHTML;
-	
 
+	// add the created table rows to tweetTable
 	for (var i = 0; i < newHTMLNodeList.length; i++) {
 		tableBody.appendChild(newHTMLNodeList[i]);
 	}
-}
 
-function getTerms(savedTweetPromise) {
-	var searchTerms = textFilter.value;
-	createRow(searchTerms, savedTweetPromise).then(addRow);
+	// update searchCount
+	document.getElementById('searchCount').innerText = newHTMLNodeList.length;
+
 }
 
 async function createRow(searchTerms, savedTweetPromise) {
-
-	if (!searchTerms) {
-		searchTerms = "";
-	}
-
-	var matchingTweets = []
-	var matchingTweetIndex = 0;
-
+	// initialize variables
+	var matchingTweets = [];
+	var returnArray = [];
 	let writtenTweets = await savedTweetPromise;
 
-	for (var i = 0; i < writtenTweets.length; i++) {
-		var tempTweet = new Tweet(writtenTweets[i].text, writtenTweets[i].created_at);
-		var lowercaseText = tempTweet.writtenText.toLowerCase();
-		if (searchTerms && lowercaseText.includes(searchTerms.toLowerCase())) {
-			matchingTweets[matchingTweetIndex] = tempTweet;
-			matchingTweetIndex += 1;
+	// set searchText to what was in the search bar
+	document.getElementById('searchText').innerText = searchTerms;
+
+	// if (searchTerms) prevents an empty search bar from returning every single tweet
+	if (searchTerms) { 
+		for (var i = 0; i < writtenTweets.length; i++) { // grabs tweets with matching written text
+			var tempTweet = new Tweet(writtenTweets[i].text, writtenTweets[i].created_at);
+			var lowercaseText = tempTweet.writtenText.toLowerCase();
+
+			if (lowercaseText.includes(searchTerms.toLowerCase())) {
+				matchingTweets.push(tempTweet);
+			}
 		}
 	}
 
-	var returnArray = [];
-
+	// creates and returns an array of matching tweets' HTML table rows
 	for (var i = 0; i < matchingTweets.length; i++) {
-		returnArray[i] = matchingTweets[i].getHTMLTableRow(i);
+		returnArray.push(matchingTweets[i].getHTMLTableRow(i));
 	}
-
 	return returnArray;
 }
 
+function updateTable(savedTweetPromise) {
+	// grab the search terms from textFilter
+	var searchTerms = textFilter.value;
+	// create table rows using Tweet's getHTMLTableRow() then add them to the table
+	createRow(searchTerms, savedTweetPromise).then(addRow);
+}
+
 function addEventHandlerForSearch(savedTweetPromise) {
+	// the event listener will run updateTable() every time textFilter is updated
+	// also updateTable needs access to the written tweets to work so it's passed in
 	textFilter.addEventListener('keyup', function() {
-		getTerms(savedTweetPromise)
+		updateTable(savedTweetPromise)
 	});
-	//TODO: Search the written tweets as text is entered into the search box, and add them to the table
 }
 
 //Wait for the DOM to load
 document.addEventListener('DOMContentLoaded', function (event) {
+	// parseTweets grabs only written tweets; the result is then passed into addEventHandlerForSearch
 	var savedTweetPromise = loadSavedRunkeeperTweets().then(parseTweets);
 	addEventHandlerForSearch(savedTweetPromise);
 });
