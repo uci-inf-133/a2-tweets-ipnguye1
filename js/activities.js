@@ -35,48 +35,54 @@ function parseTweets(runkeeper_tweets) {
 		return new Tweet(tweet.text, tweet.created_at);
 	});
 
-	// initialize the graphs as a hidden element
+	// initialize distanceVisAggregated as a hidden element
 	document.getElementById("distanceVisAggregated").style.display = 'none'; 
 
+	// initialize variables
 	var simplifiedTweets = [];
-	var activities = {};
+	var activities = {}; // associates activities with how mnay tweets mentions them
+	var tally = [];
 
+	// simplify tweets down to activity, distance, and day
 	for (var i = 0; i < tweet_array.length; i++) {
 		var currentTweet = tweet_array[i];
 		var tweetActivity = currentTweet.activityType;
 
 		if (tweetActivity != "unknown") {
 			var tweetDistance = currentTweet.distance;
+
+			// convert km to mi, the condition checks to see if km is NOT part of the custom text
 			if (currentTweet.text.includes("km") && 
 			(currentTweet.text.indexOf("km") < currentTweet.text.indexOf("-"))) {
 				tweetDistance = currentTweet.distance / 1.609;
 			}
 
+			// since day is stored as a number, convertDay() turns it into the actual day
 			var tweetDay = currentTweet.time.getDay();
 			tweetDay = convertDay(tweetDay);
 
-			simplifiedTweets[simplifiedTweets.length] = {"activity": tweetActivity, "distance": tweetDistance, "day": tweetDay};
-			activities[tweetActivity] = 0;
+			simplifiedTweets.push({"activity": tweetActivity, "distance": tweetDistance, "day": tweetDay});
+			
+			// adds activity to activities if activity isn't in it, increments entry by 1 if it is
+			if (activities[tweetActivity]) {
+				activities[tweetActivity] += 1;
+			} else {
+				activities[tweetActivity] = 1;
+			}
 		}
 	}
 
-	for (var i = 0; i < simplifiedTweets.length; i++) {
-		activities[simplifiedTweets[i]["activity"]] += 1;
-	}
-
-	var tally = [];
-
+	// turns activities into an array of objects for vega graphs to work
 	for (var i = 0; i < Object.entries(activities).length; i++) {
 		var tallyEntry = {"name": Object.keys(activities)[i], "count": Object.values(activities)[i]};
-		tally[i] = tallyEntry;
+		tally.push(tallyEntry);
 	}
 
+	// sorts tally to get the 3 most popular activities
 	function sortFunct(a, b) {
 		return a["count"] < b["count"];
 	}
-
 	tally.sort(sortFunct)
-	console.log(tally);
 
 	var topActivity = tally[0]["name"];
 	var secondActivity = tally[1]["name"];
@@ -87,12 +93,9 @@ function parseTweets(runkeeper_tweets) {
 			(tweet["activity"] === secondActivity) || 
 			(tweet["activity"] === thirdActivity);
 	}
-
 	var filteredTweets = simplifiedTweets.filter(filterActivity);
-	console.log(filteredTweets);
 
-	//TODO: create a new array or manipulate tweet_array to create a graph of the number of tweets containing each type of activity.
-
+	// makes tweet count graph
 	activity_vis_spec = {
 	  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  "description": "A graph of the number of Tweets containing each type of activity.",
@@ -112,24 +115,24 @@ function parseTweets(runkeeper_tweets) {
 		}
 	],
 	  "encoding": {
-		y: {
+		x: {
 			field: "name",
 			type: "nominal",
-			sort: "-x",
+			sort: "-y",
 		},
-		x: {
+		y: {
 			field: "count",
 			type: "quantitative",
 			sort: "ascending",
 		}
 	  }
-	  //TODO: Add mark and encoding
 	};
 	vegaEmbed('#activityVis', activity_vis_spec, {actions:false});
 
+	// makes distance graph
 	distanceVis_graph = {
 	  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-	  "description": "A graph of the number of Tweets containing each type of activity.",
+	  "description": "A graph displaying the distances users have logged throughout the week.",
 	  "data": {
 	    "values": filteredTweets
 	  },
@@ -149,14 +152,14 @@ function parseTweets(runkeeper_tweets) {
 			type: "nominal"
 		}
 	  }
-	  //TODO: Add mark and encoding
 	};
 
 	vegaEmbed('#distanceVis', distanceVis_graph, {actions:false});
 
+	// makes averaged distance graph
 	aggregatedDistanceVis_graph = {
 	  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-	  "description": "A graph of the number of Tweets containing each type of activity.",
+	  "description": "A graph displaying the average of logged user distances throughout the week.",
 	  "data": {
 	    "values": filteredTweets
 	  },
@@ -177,24 +180,34 @@ function parseTweets(runkeeper_tweets) {
 			type: "nominal"
 		}
 	  }
-	  //TODO: Add mark and encoding
 	};
 	vegaEmbed('#distanceVisAggregated', aggregatedDistanceVis_graph, {actions:false});
 
+	// if I don't have this line, the graph will be displayed right above the button which bothers me
 	document.getElementById("distanceVis").style.display = 'block'; 
 
-	//TODO: create the visualizations which group the three most-tweeted activities by the day of the week.
-	//Use those visualizations to answer the questions about which activities tended to be longest and when.
+	// change the text elements to the appropiate labels
+	document.getElementById("numberActivities").innerText = tally.length; 
+	document.getElementById("firstMost").innerText = topActivity; 
+	document.getElementById("secondMost").innerText = secondActivity; 
+	document.getElementById("thirdMost").innerText = thirdActivity; 
+
+	document.getElementById("longestActivityType").innerText = "bike"; 
+	document.getElementById("shortestActivityType").innerText = "walk"; 
+
+	document.getElementById("weekdayOrWeekendLonger").innerText = "the weekend"; 
 }
 
+// switches the graph and button text depending on which graph is being shown
 function switchGraph () {
 	if (document.getElementById("distanceVisAggregated").style.display === 'none') {
 		document.getElementById("distanceVisAggregated").style.display = 'block';
 		document.getElementById("distanceVis").style.display = 'none'; 
-		console.log("you can se it now :)");
+		document.getElementById("aggregate").innerText = 'Show all activities';
 	} else {
 		document.getElementById("distanceVisAggregated").style.display = 'none';
-		document.getElementById("distanceVis").style.display = 'block'; 
+		document.getElementById("distanceVis").style.display = 'block';
+		document.getElementById("aggregate").innerText = 'Show means'; 
 	}
 }
 
