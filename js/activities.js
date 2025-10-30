@@ -87,7 +87,13 @@ function parseTweets(runkeeper_tweets) {
 
 	// sorts tally to get the 3 most popular activities
 	function sortFunct(a, b) {
-		return a["count"] < b["count"];
+		if (a["count"] < b["count"]) {
+			return 1;
+		} else if (a["count"] > b["count"]) {
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 	tally.sort(sortFunct);
 
