@@ -32,15 +32,7 @@ class Tweet {
         }
         // written text begins right after the -
         var beginningOfWrittenText = this.text.indexOf("-") + 1; 
-
-        // isolate written text
-        var writtenText = this.text.substring(beginningOfWrittenText);
-
-        // find last link in the tweet which should be the tweet link
-        // (since it's possible for users to put in links of their own for custom text)
-        var endOfWrittenText = writtenText.lastIndexOf("https://t.co/");
-
-        return writtenText.substring(0, endOfWrittenText);
+        return this.text.substring(beginningOfWrittenText);
     }
 
     // returns what the user did
@@ -49,15 +41,11 @@ class Tweet {
             return "unknown";
         }
 
-        if (this.text.startsWith("Just posted an activity in")) { //edge case
+        if (this.text.startsWith("Just posted an activity in")) { //edge case (unspecified activity)
             return "unknown";
         }
 
-        //TODO: parse the activity type from the text of the tweet
-        // boy idfk
-
         var tweetTextArray = this.text.split(" ");
-
         if (this.written) { // get rid of any written text
             tweetTextArray = tweetTextArray.slice(0, tweetTextArray.indexOf("-"));
         }
@@ -108,11 +96,11 @@ class Tweet {
 
         } else if (tweetTextArray.includes("session")) {
             return tweetTextArray[tweetTextArray.indexOf("session") - 1];
-        } else { // idk. return stuff in between "a" and "in" ????
+        } else { // return the string in between "a" and "in" (assumption...)
             var returnStringBeginning = tweetTextArray.indexOf("a") + 1;
             var returnStringEnd = tweetTextArray.indexOf("in");
 
-            if (returnStringEnd === -1) {
+            if (returnStringEnd === -1) { // if "in" doesn't exist, get the end of array
                 returnStringEnd = tweetTextArray.length;
             }
 

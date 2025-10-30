@@ -11,23 +11,9 @@ function parseTweets(runkeeper_tweets) {
 		return tempTweet.written;
 	};
 
-	// set searchText to what was in the search bar
+	// initialize searchText to '' and searchCount to 0 upon loading
 	document.getElementById('searchText').innerText = textFilter.value;
-
-	var matchingTweets = [];
-	// if (searchTerms) prevents an empty search bar from returning every single tweet
-	if (textFilter.value) { 
-		for (var i = 0; i < writtenTweets.length; i++) { // grabs tweets with matching written text
-			var tempTweet = new Tweet(writtenTweets[i].text, writtenTweets[i].created_at);
-			var lowercaseText = tempTweet.writtenText.toLowerCase();
-
-			if (lowercaseText.includes(textFilter.value.toLowerCase())) {
-				matchingTweets.push(tempTweet);
-			}
-		}
-	}
-
-	document.getElementById('searchCount').innerText = matchingTweets.length;
+	document.getElementById('searchCount').innerText = 0;
 
 	return writtenTweets;
 }
@@ -37,10 +23,9 @@ function getMatchingTweets(tweetList) {
 	var matchingTweets = [];
 	// if (searchTerms) prevents an empty search bar from returning every single tweet
 	if (searchTerms) { 
-		for (var i = 0; i < tweetList.length; i++) { // grabs tweets with matching written text
+		for (var i = 0; i < tweetList.length; i++) { // grabs tweets with matching text
 			var tempTweet = new Tweet(tweetList[i].text, tweetList[i].created_at);
-			var lowercaseText = tempTweet.writtenText.toLowerCase();
-
+			var lowercaseText = tweetList[i].text.toLowerCase();
 			if (lowercaseText.includes(searchTerms.toLowerCase())) {
 				matchingTweets.push(tempTweet);
 			}

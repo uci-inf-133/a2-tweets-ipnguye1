@@ -41,7 +41,6 @@ function parseTweets(runkeeper_tweets) {
 	// initialize variables
 	var simplifiedTweets = [];
 	var activities = {}; // associates activities with how mnay tweets mentions them
-	var tally = [];
 
 	// simplify tweets down to activity, distance, and day
 	for (var i = 0; i < tweet_array.length; i++) {
@@ -51,10 +50,17 @@ function parseTweets(runkeeper_tweets) {
 		if (tweetActivity != "unknown") {
 			var tweetDistance = currentTweet.distance;
 
-			// convert km to mi, the condition checks to see if km is NOT part of the custom text
-			if (currentTweet.text.includes("km") && 
-			(currentTweet.text.indexOf("km") < currentTweet.text.indexOf("-"))) {
-				tweetDistance = currentTweet.distance / 1.609;
+			// convert km to mi
+			if (currentTweet.text.includes("km")) {
+				if (currentTweet.text.indexOf("-") != -1) { // if tweet has custom text
+					// checks to see if first instance of km is NOT part of the custom text
+					// (it can be in the custom text but it should not be only in the text)
+					if (currentTweet.text.indexOf("km") < currentTweet.text.indexOf("-")) {
+						tweetDistance = currentTweet.distance / 1.609;
+					}
+				} else { // tweet has no custom text
+					tweetDistance = currentTweet.distance / 1.609;
+				}
 			}
 
 			// since day is stored as a number, convertDay() turns it into the actual day
@@ -73,6 +79,7 @@ function parseTweets(runkeeper_tweets) {
 	}
 
 	// turns activities into an array of objects for vega graphs to work
+	var tally = [];
 	for (var i = 0; i < Object.entries(activities).length; i++) {
 		var tallyEntry = {"name": Object.keys(activities)[i], "count": Object.values(activities)[i]};
 		tally.push(tallyEntry);
@@ -82,7 +89,7 @@ function parseTweets(runkeeper_tweets) {
 	function sortFunct(a, b) {
 		return a["count"] < b["count"];
 	}
-	tally.sort(sortFunct)
+	tally.sort(sortFunct);
 
 	var topActivity = tally[0]["name"];
 	var secondActivity = tally[1]["name"];
