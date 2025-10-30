@@ -1,4 +1,4 @@
---Readme document for Isabella Nguyen, ipnguye1@uci.edu--
+--Readme document for Isabella Phuong Nguyen, ipnguye1@uci.edu--
 
 1. How many assignment points do you believe you completed (replace the *'s with your numbers)?
 
