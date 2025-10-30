@@ -31,13 +31,11 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 
 activities.js:
 https://www.w3schools.com/js/js_switch.asp
-https://vega.github.io/vega-lite/examples/window_top_k.html
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 https://vega.github.io/vega-lite/docs/sort.html
 https://vega.github.io/vega/docs/transforms/filter/
 https://stackoverflow.com/a/20441059 (used this to hide graphs)
 https://www.w3schools.com/jsref/jsref_push.asp
-https://vega.github.io/vega-lite/docs/sort.html
 https://vega.github.io/vega-lite/docs/aggregate.html
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values
@@ -50,7 +48,6 @@ https://www.w3schools.com/jsref/jsref_filter.asp
 https://www.w3schools.com/jsref/jsref_tolowercase.asp
 https://www.w3schools.com/jsref/met_document_addeventlistener.asp
 https://www.w3schools.com/jsref/met_node_removechild.asp
-https://www.w3schools.com/jsref/jsref_tolowercase.asp
 https://www.w3schools.com/jsref/prop_html_innerhtml.asp
 https://www.w3schools.com/js/js_async.asp
 https://www.w3schools.com/jsref/met_node_appendchild.asp
